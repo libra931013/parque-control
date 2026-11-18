@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Limón Loco Staff</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
+body { background-color: #0f172a; color: #f8fafc; padding-bottom: 90px; user-select: none; }
+
+/* Header */
+header { background: linear-gradient(to right, #f59e0b, #facc15); padding: 14px 16px; color: #020617; position: sticky; top: 0; z-index: 40; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); }
+.header-content { max-width: 440px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+.brand { display: flex; items-center; gap: 8px; }
+.brand-title { font-weight: 900; font-size: 18px; line-height: 1; }
+.brand-sub { font-size: 11px; font-weight: 700; opacity: 0.8; margin-top: 2px; }
+select.user-select { background: rgba(2, 6, 23, 0.2); color: #020617; font-size: 12px; font-weight: 700; padding: 6px 10px; border-radius: 8px; border: 1px solid rgba(2, 6, 23, 0.2); outline: none; }
+
+/* Main Container */
+main { max-width: 440px; margin: 0 auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+
+/* Grid Métricas */
+.metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.metric-card { background: #1e293b; padding: 12px 8px; border-radius: 16px; border: 1px solid #334155; text-align: center; }
+.metric-card.amber { border-color: rgba(245, 158, 11, 0.4); }
+.metric-card.red { border-color: rgba(239, 68, 68, 0.4); }
+.metric-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+.metric-value { font-size: 22px; font-weight: 900; margin-top: 2px; }
+.text-amber { color: #facc15; }
+.text-red { color: #f87171; }
+
+/* Botón Nuevo Reporte */
+.btn-main { width: 100%; background: linear-gradient(to right, #facc15, #f59e0b); color: #020617; font-weight: 900; padding: 16px; border-radius: 16px; border: none; font-size: 15px; box-shadow: 0 10px 15px -3px rgba(245, 158, 11, 0.3); display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; }
+.btn-main:active { transform: scale(0.97); }
+
+/* Filtros Horizontal */
+.filter-bar { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; }
+.btn-filter { background: #1e293b; color: #cbd5e1; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 12px; border: 1px solid #334155; white-space: nowrap; cursor: pointer; }
+.btn-filter.active { background: #facc15; color: #020617; border-color: #facc15; }
+
+/* Lista de Tarjetas */
+.report-card { background: #1e293b; border-radius: 16px; padding: 14px; border: 1px solid #334155; display: flex; flex-direction: column; gap: 10px; }
+.report-card.urgent { border-color: rgba(239, 68, 68, 0.6); background: rgba(239, 68, 68, 0.05); }
+.report-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.area-title { font-size: 13px; font-weight: 900; }
+.badge-urgent { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 12px; margin-left: 6px; }
+.badge-type { font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 12px; }
+.badge-type.clean { background: rgba(245, 158, 11, 0.2); color: #fde047; }
+.badge-type.defect { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.report-desc { font-size: 12px; color: #94a3b8; margin-top: 4px; line-height: 1.4; }
+.report-img { width: 100%; height: 120px; object-fit: cover; border-radius: 10px; border: 1px solid #334155; }
+.report-footer { border-top: 1px solid #334155; padding-top: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94a3b8; }
+.btn-action { padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; border: none; cursor: pointer; }
+.btn-action.pending { background: #facc15; color: #020617; }
+.btn-action.solved { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+/* Modal */
+.modal-overlay { position: fixed; inset: 0; background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(4px); display: none; z-index: 50; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-body { background: #1e293b; width: 100%; max-width: 440px; border-top-left-radius: 24px; border-top-right-radius: 24px; padding: 20px; border: 1px solid #334155; max-height: 90vh; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 10px; }
+.btn-close { width: 32px; height: 32px; border-radius: 50%; background: #334155; color: #cbd5e1; border: none; font-weight: 900; cursor: pointer; }
+
+/* Form Inputs */
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 10px; font-weight: 800; color: #94a3b8; text-transform: uppercase; }
+.form-control { background: #0f172a; border: 1px solid #334155; color: #f8fafc; padding: 12px; border-radius: 12px; font-size: 13px; outline: none; width: 100%; }
+.form-control:focus { border-color: #facc15; }
+.radio-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.radio-btn { background: #0f172a; border: 1px solid #334155; padding: 10px; border-radius: 12px; text-align: center; font-size: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.radio-btn input { accent-color: #facc15; }
+</style>
+</head>
+<body>
+
+<!-- Encabezado -->
+<header>
+<div class="header-content">
+<div class="brand">
+<span style="font-size: 22px;">🍋</span>
+<div>
+<div class="brand-title">LIMÓN LOCO</div>
+<div class="brand-sub">Control de Parque Infantil</div>
+</div>
+</div>
+<select id="userSelect" onchange="usuarioActual = this.value" class="user-select">
+<option value="Armando Arriaga">Armando Arriaga</option>
+<option value="Paula">Paula</option>
+<option value="Mantenimiento">Mantenimiento</option>
+</select>
+</div>
+</header>
+
+<!-- Contenido -->
+<main>
+
+<!-- Contadores -->
+<div class="metrics-grid">
+<div class="metric-card">
+<div class="metric-label">Total Hoy</div>
+<div id="cntTotal" class="metric-value">0</div>
+</div>
+<div class="metric-card amber">
+<div class="metric-label text-amber">Pendientes</div>
+<div id="cntPendientes" class="metric-value text-amber">0</div>
+</div>
+<div class="metric-card red">
+<div class="metric-label text-red">Urgentes</div>
+<div id="cntUrgentes" class="metric-value text-red">0</div>
+</div>
+</div>
+
+<!-- Botón Nuevo Reporte -->
+<button type="button" id="btnAbrirModal" class="btn-main">
+<span style="font-size: 18px;">➕</span>
+<span>NUEVO REPORTE CON FOTO</span>
+</button>
+
+<!-- Filtros -->
+<div class="filter-bar">
+<button type="button" class="btn-filter active" onclick="filtrar('todos', this)">Todos</button>
+<button type="button" class="btn-filter" onclick="filtrar('pendiente', this)">Pendientes</button>
+<button type="button" class="btn-filter" onclick="filtrar('limpieza', this)">🧹 Suciedad</button>
+<button type="button" class="btn-filter" onclick="filtrar('defecto', this)">🛠️ Defectos</button>
+</div>
+
+<!-- Listado -->
+<div id="contenedorReportes" style="display: flex; flex-direction: column; gap: 10px;"></div>
+</main>
+
+<!-- Modal Formulario -->
+<div id="modalForm" class="modal-overlay">
+<div class="modal-body">
+<div class="modal-header">
+<h3 style="font-size: 15px; font-weight: 800;">Nuevo Reporte de Incidencia</h3>
+<button type="button" id="btnCerrarModal" class="btn-close">✕</button>
+</div>
+
+<form id="formularioIncidencia" style="display: flex; flex-direction: column; gap: 12px;">
+<div class="form-group">
+<label class="form-label">Área del Parque</label>
+<select id="formArea" class="form-control">
+<option value="Piscina de Bolas">🔴 Piscina de Bolas</option>
+<option value="Toboganes & Túneles">🛝 Toboganes & Túneles</option>
+<option value="Camas Elásticas">🤸 Camas Elásticas</option>
+<option value="Zona VR / Simuladores">🥽 Zona VR / Simuladores</option>
+<option value="Zona Baby (0-3 años)">🧸 Zona Baby (0-3 años)</option>
+<option value="Cafetería & Mesas">☕ Cafetería & Mesas</option>
+<option value="Aseos / Baños">🚻 Aseos / Baños</option>
+</select>
+</div>
+
+<div class="form-group">
+<label class="form-label">Tipo de Incidencia</label>
+<div class="radio-grid">
+<label class="radio-btn">
+<input type="radio" name="formTipo" value="limpieza" checked> 🧹 Suciedad
+</label>
+<label class="radio-btn">
+<input type="radio" name="formTipo" value="defecto"> 🛠️ Defecto
+</label>
+</div>
+</div>
+
+<div class="form-group">
+<label class="form-label">Prioridad</label>
+<select id="formPrioridad" class="form-control">
+<option value="baja">🟢 Baja</option>
+<option value="media" selected>🟡 Media</option>
+<option value="urgente">🔴 Urgente</option>
+</select>
+</div>
+
+<div class="form-group">
+<label class="form-label">Observaciones / Detalles</label>
+<textarea id="formDescripcion" rows="3" class="form-control" placeholder="Escribe aquí los detalles..." required></textarea>
+</div>
+
+<div class="form-group">
+<label class="form-label">Foto de Evidencia</label>
+<input type="file" id="formFoto" accept="image/*" capture="environment" class="form-control" style="font-size: 11px;">
+</div>
+
+<button type="submit" class="btn-main" style="margin-top: 6px;">REGISTRAR INCIDENCIA</button>
+</form>
+</div>
+</div>
+
+<script>
+// Variables globales
+var reportes = [
+{ id: '1', fecha: '10:30', area: 'Piscina de Bolas', tipo: 'defecto', prioridad: 'urgente', usuario: 'Armando Arriaga', descripcion: 'Bola rota en la esquina derecha con borde afilado', estado: 'pendiente', foto: null },
+{ id: '2', fecha: '11:15', area: 'Zona VR / Simuladores', tipo: 'limpieza', prioridad: 'media', usuario: 'Paula', descripcion: 'Limpieza de visores VR requerida', estado: 'pendiente', foto: null }
+ ];
+
+try {
+var localData = localStorage.getItem('limon_loco_db');
+if (localData) { reportes = JSON.parse(localData); }
+} catch(e){}
+
+var usuarioActual = "Armando Arriaga";
+var filtroActual = "todos";
+var fotoBase64 = null;
+
+function guardar() {
+try { localStorage.setItem('limon_loco_db', JSON.stringify(reportes)); } catch(e){}
+render();
+}
+
+function render() {
+var contenedor = document.getElementById('contenedorReportes');
+contenedor.innerHTML = '';
+
+var lista = reportes.filter(function(r) {
+if (filtroActual === 'pendiente') return r.estado === 'pendiente';
+if (filtroActual === 'limpieza') return r.tipo === 'limpieza';
+if (filtroActual === 'defecto') return r.tipo === 'defecto';
+return true;
+});
+
+document.getElementById('cntTotal').innerText = reportes.length;
+document.getElementById('cntPendientes').innerText = reportes.filter(function(r){ return r.estado === 'pendiente'; }).length;
+document.getElementById('cntUrgentes').innerText = reportes.filter(function(r){ return r.prioridad === 'urgente' && r.estado === 'pendiente'; }).length;
+
+if (lista.length === 0) {
+contenedor.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b; font-size: 12px; font-weight: 700;">No hay incidencias en esta lista.</div>';
+return;
+}
+
+lista.forEach(function(item) {
+var esUrgente = item.prioridad === 'urgente';
+var esDefecto = item.tipo === 'defecto';
+var estaResuelto = item.estado === 'resuelto';
+
+var card = document.createElement('div');
+card.className = 'report-card' + (esUrgente && !estaResuelto ? ' urgent' : '');
+
+var html = '<div class="report-header"><div>';
+html += '<span class="area-title">' + item.area + '</span>';
+if (esUrgente && !estaResuelto) { html += '<span class="badge-urgent">URGENTE</span>'; }
+html += '<div class="report-desc">' + item.descripcion + '</div></div>';
+html += '<span class="badge-type ' + (esDefecto ? 'defect' : 'clean') + '">' + (esDefecto ? '🛠️ Defecto' : '🧹 Suciedad') + '</span></div>';
+
+if (item.foto) {
+html += '<img src="' + item.foto + '" class="report-img">';
+}
+
+html += '<div class="report-footer">';
+html += '<span>👤 ' + item.usuario + ' (' + item.fecha + ')</span>';
+html += '<button type="button" class="btn-action ' + (estaResuelto ? 'solved' : 'pending') + '" onclick="toggleEstado('' + item.id + '')">' + (estaResuelto ? '✓ Solucionado' : 'Marcar Solucionado') + '</button>';
+html += '</div>';
+
+card.innerHTML = html;
+contenedor.appendChild(card);
+});
+}
+
+function toggleEstado(id) {
+reportes = reportes.map(function(r) {
+if (r.id === id) { r.estado = (r.estado === 'pendiente' ? 'resuelto' : 'pendiente'); }
+return r;
+});
+guardar();
+}
+
+function filtrar(tipo, btn) {
+filtroActual = tipo;
+document.querySelectorAll('.btn-filter').forEach(function(b){ b.classList.remove('active'); });
+btn.classList.add('active');
+render();
+}
+
+// Eventos y Asignaciones
+document.getElementById('btnAbrirModal').onclick = function() {
+document.getElementById('modalForm').classList.add('open');
+};
+
+document.getElementById('btnCerrarModal').onclick = function() {
+document.getElementById('modalForm').classList.remove('open');
+};
+
+document.getElementById('formFoto').onchange = function(e) {
+var file = e.target.files[0];
+if (file) {
+var reader = new FileReader();
+reader.onload = function(evt) { fotoBase64 = evt.target.result; };
+reader.readAsDataURL(file);
+}
+};
+
+document.getElementById('formularioIncidencia').onsubmit = function(e) {
+e.preventDefault();
+var desc = document.getElementById('formDescripcion').value;
+if (!desc) return;
+
+var tipos = document.getElementsByName('formTipo');
+var tipoSeleccionado = 'limpieza';
+for(var i=0; i<tipos.length; i++) {
+if(tipos[i].checked) tipoSeleccionado = tipos[i].value;
+}
+
+var nuevo = {
+id: Date.now().toString(),
+fecha: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+area: document.getElementById('formArea').value,
+tipo: tipoSeleccionado,
+prioridad: document.getElementById('formPrioridad').value,
+usuario: usuarioActual,
+descripcion: desc,
+estado: 'pendiente',
+foto: fotoBase64
+};
+
+reportes.unshift(nuevo);
+guardar();
+
+document.getElementById('formDescripcion').value = '';
+document.getElementById('formFoto').value = '';
+fotoBase64 = null;
+document.getElementById('modalForm').classList.remove('open');
+};
+
+// Inicializar
+render();
+</script>
+</body>
+</html>
